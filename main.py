@@ -1,7 +1,5 @@
 from cryptography.fernet import Fernet
 
-master_pwd = input("What is your master password? ")
-
 '''
 def write_key():
     key = Fernet.generate_key()
@@ -9,18 +7,25 @@ def write_key():
         key_file.write(key) 
 '''
 
+
 def load_key():
     file = open("key.key", "rb")
     key = file.read()
     file.close()
     return key
 
+
+master_pwd = input("What is your master password? ")
+key = load_key() + master_pwd.encode()
+fer = Fernet(key)
+
+
 def view():
     with open('passwords.txt', 'r') as f:
         for line in f.readlines():
             data = line.rstrip()
             user, passw = data.split("|")
-            print("User:", user, "| Password:", passw)
+            print("User:", user, "| Password:", str(fer.decrypt(passw.encode())))
 
 
 def add():
@@ -28,7 +33,7 @@ def add():
     pwd = input("What is the password? ")
 
     with open('passwords.txt', 'a') as f:
-        f.write(name + " | " + pwd + "\n")
+        f.write(name + " | " + str(fer.encrypt(pwd.encode())) + "\n")
 
 
 while True:
